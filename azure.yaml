@@ -1,0 +1,8 @@
+name: pitchside
+services:
+  web:
+    project: .
+    host: containerapp
+    language: python
+    docker:
+      path: ./Dockerfile

@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+openai
+azure-identity
+azure-cosmos
+azure-ai-projects
+azure-eventhub
+azure-storage-file-datalake
+agent-framework; python_version >= "3.10"

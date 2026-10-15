@@ -1,0 +1,14 @@
+// Eventhouse table fed by the Eventstream (JSON from Event Hubs 'match-events')
+.create table MatchEvents (match:int, id:int, minute:int, team:string, player:string, type:string, xg:real, state:dynamic)
+
+// Live scoreboard
+MatchEvents | where match == 3
+| summarize arg_max(id, state) | project score_home=state.score.home, score_away=state.score.away, xg=state.xg
+
+// Momentum swings > 15 pts of win probability (feeds the narration trigger)
+MatchEvents | extend swing = abs(todouble(state.wp_swing.home)) | where swing > 0.15
+| project minute, team, player, type, swing | order by minute asc
+
+// xG race per 5-minute bin
+MatchEvents | where type startswith "shot" or type == "goal"
+| summarize xg=sum(xg) by team, bin(minute, 5) | order by minute asc

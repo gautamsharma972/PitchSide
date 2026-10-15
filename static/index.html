@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PitchSide</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%E2%9A%BD%3C/text%3E%3C/svg%3E">
+<style>
+:root{--bg:#0b0f14;--card:#151b23;--ink:#e8edf3;--mut:#8b97a6;--home:#4cc9f0;--away:#f72585;--ok:#3ddc97;--warn:#ffb703;--bad:#ff6b6b;--line:#252d39;--pitch:#14532d}
+@media (prefers-color-scheme: light){:root{--bg:#f3f5f8;--card:#fff;--ink:#121820;--mut:#5b6877;--line:#dde2e9;--pitch:#2f8f4e}}
+@media (prefers-color-scheme: light){:root[data-theme=dark]{--bg:#0b0f14;--card:#151b23;--ink:#e8edf3;--mut:#8b97a6;--line:#252d39;--pitch:#14532d}}
+:root[data-theme=light]{--bg:#f3f5f8;--card:#fff;--ink:#121820;--mut:#5b6877;--line:#dde2e9;--pitch:#2f8f4e}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,sans-serif}
+header{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line)}
+h1{font-size:18px;margin:0;flex:1 1 200px}h1 span{color:var(--mut);font-weight:400;font-size:13px}
+select,button,input{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font:inherit}
+button{cursor:pointer}button:hover{border-color:var(--mut)}button.primary{background:var(--home);color:#04202b;border-color:transparent;font-weight:600}
+:focus-visible{outline:2px solid var(--home);outline-offset:1px}
+.ctl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 16px;max-width:1280px;margin:auto}
+.ctl label{font-size:12px;color:var(--mut);display:flex;flex-direction:column;gap:2px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}.seg button{border:0;border-radius:0}.seg button.on{background:var(--home);color:#04202b;font-weight:600}
+.badges{display:flex;gap:6px;flex-wrap:wrap;padding:0 16px;max-width:1280px;margin:auto}
+.badge{font-size:12px;padding:2px 9px;border-radius:99px;border:1px solid var(--line);color:var(--mut)}.badge.on{color:var(--ok);border-color:var(--ok)}
+main{display:grid;gap:14px;padding:14px 16px;grid-template-columns:repeat(12,1fr);max-width:1280px;margin:auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;min-width:0}
+.card h2{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:0 0 10px;display:flex;justify-content:space-between;gap:8px}
+.c8{grid-column:span 8}.c4{grid-column:span 4}.c6{grid-column:span 6}.c12{grid-column:span 12}.c3{grid-column:span 3}
+@media(max-width:900px){.c8,.c4,.c6,.c3{grid-column:span 12}}
+svg{width:100%;height:auto;display:block}
+.stage{position:relative;border-radius:10px;overflow:hidden;background:var(--pitch)}
+.stage svg text{font-family:system-ui,sans-serif}
+.scorebug{position:absolute;left:10px;top:10px;background:rgba(10,14,20,.88);color:#fff;border-radius:8px;padding:6px 12px;display:flex;gap:10px;align-items:center;font-weight:700;font-size:15px}
+.scorebug small{font-weight:500;color:#9fb0c3}.scorebug .n{font-size:20px}
+.lt{position:absolute;left:0;right:0;bottom:12px;display:flex;justify-content:center;pointer-events:none}
+.lt div{background:rgba(10,14,20,.92);color:#fff;border-left:5px solid var(--home);padding:8px 16px;border-radius:6px;max-width:92%;font-weight:600;animation:up .25s}
+.lt div.away{border-color:var(--away)}
+.pcard{position:absolute;right:10px;top:10px;background:rgba(10,14,20,.88);color:#fff;border-radius:8px;padding:6px 10px;font-size:12.5px;line-height:1.35;animation:up .25s;max-width:44%}
+@keyframes up{from{opacity:0;transform:translateY(6px)}}
+.bar{display:flex;height:10px;border-radius:6px;overflow:hidden;background:var(--line);margin:4px 0}
+.sub{color:var(--mut);font-size:13px}
+#feed{max-height:330px;overflow:auto}
+.it{padding:6px 8px;border-radius:8px;border:1px solid var(--line);margin-bottom:6px;animation:up .25s}
+.it.p5{border-color:var(--ok)}.it.p4{border-color:var(--warn)}.it.fav{background:rgba(255,183,3,.08)}
+.it small{color:var(--mut)}
+.chip{display:inline-block;font-size:12px;padding:1px 8px;border-radius:99px;border:1px solid var(--line);color:var(--mut);margin:3px 4px 0 0}
+.home{color:var(--home)}.away{color:var(--away)}.ok{color:var(--ok)}.bad{color:var(--bad)}
+.moment{padding:8px 10px;border:1px solid var(--line);border-radius:10px;margin-bottom:6px;cursor:pointer;display:block;width:100%;text-align:left}
+.moment:hover,.moment.sel{border-color:var(--home)}
+table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:3px 6px;text-align:right;border-bottom:1px solid var(--line)}td:first-child,th:first-child{text-align:left}
+.legend{display:flex;gap:12px;font-size:12px;color:var(--mut);margin-top:4px}
+.sr{position:absolute;left:-9999px}
+#ticks{display:flex;gap:6px;overflow:hidden;white-space:nowrap;font-size:13px;margin-top:8px;color:var(--mut)}
+#dir{position:fixed;right:12px;bottom:12px;width:300px;max-width:calc(100vw - 28px);background:rgba(10,14,20,.96);color:#fff;border:1px solid var(--home);border-radius:12px;padding:12px 14px;z-index:20;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+#dir h3{margin:0 0 4px;font-size:13px;color:var(--home)}#dir p{margin:4px 0 8px;font-size:13.5px}#dir .row{display:flex;gap:6px;align-items:center;justify-content:space-between}
+#dir button{padding:4px 10px}.hl{outline:3px solid var(--warn);outline-offset:3px;border-radius:14px;transition:outline .3s}
+#trace{margin-top:8px;font-size:12.5px;max-height:190px;overflow:auto}#trace div{padding:2px 0;border-bottom:1px dashed var(--line)}
+.ag{display:inline-block;padding:0 7px;border-radius:99px;border:1px solid var(--line);margin-right:6px;font-weight:600}
+.ag.analyst{color:var(--home)}.ag.storyteller{color:var(--warn)}.ag.verifier{color:var(--ok)}.ag.bad{color:var(--bad);border-color:var(--bad)}
+pre{white-space:pre-wrap;word-break:break-word;font-size:12px;background:var(--bg);padding:8px;border-radius:8px;max-height:160px;overflow:auto}
+</style>
+</head>
+<body>
+<header>
+  <h1>⚽ PitchSide <span>real-time, explainable match intelligence · synthetic data</span></h1>
+  <label class="sr" for="speed">Replay speed</label>
+  <select id="speed"><option value="1">1× real time</option><option value="30">30×</option><option value="60" selected>60×</option><option value="100">100×</option><option value="150">150×</option><option value="400">400×</option></select>
+  <button id="start" class="primary">▶ Start live match</button>
+  <button id="export" title="Export to Fabric OneLake">⇪ Fabric</button>
+</header>
+<div class="ctl" role="group" aria-label="Viewer profile">
+  <div class="seg" id="mode"><button data-v="analyst" class="on">Analyst</button><button data-v="fan">Fan</button></div>
+  <label>Language<select id="lang"></select></label>
+  <label>Favourite club<select id="team"><option value="">—</option></select></label>
+  <label>Favourite player<select id="fav"><option value="">—</option></select></label>
+  <label>Follow one player<select id="focus"><option value="">Whole match</option></select></label>
+  <label>Metric ticker<select id="metric"></select></label>
+</div>
+<div class="badges" id="badges"></div>
+<main>
+  <section class="card c8">
+    <h2>Broadcast overlay stage <span id="health"></span></h2>
+    <div class="stage" id="stage">
+      <svg id="pitch" viewBox="0 0 1050 680" role="img" aria-label="Live pitch with overlays"></svg>
+      <div class="scorebug" id="bug"><span class="home" id="bh">–</span><span class="n" id="bs">0–0</span><span class="away" id="ba">–</span><small id="bc"></small></div>
+      <div id="pc"></div><div class="lt" id="lt"></div>
+    </div>
+    <div class="bar" id="wpbar" title="Win probability"></div>
+    <div class="sub" id="wptxt"></div>
+    <div id="ticks" aria-label="Recent events"></div>
+  </section>
+  <section class="card c4">
+    <h2>Live commentary &amp; insights <span id="mode-lbl"></span></h2>
+    <div id="feed" aria-live="polite"><div class="sub">Press “Start live match”. Everything here is rendered per viewer profile.</div></div>
+  </section>
+
+  <section class="card c4"><h2>Control vs chaos <span id="phase"></span></h2><div id="ctrl" class="sub"></div>
+    <div style="margin-top:8px" id="ticker"></div></section>
+  <section class="card c4"><h2>Player focus card <span id="pname"></span></h2><div id="pcardbox" class="sub">Pick a favourite or “Follow one player” to see their live card.</div></section>
+  <section class="card c4"><h2>Win probability</h2><svg id="wp" viewBox="0 0 400 150" role="img" aria-label="Win probability"></svg>
+    <div class="legend"><span class="home">● Home</span><span>● Draw</span><span class="away">● Away</span></div></section>
+
+  <section class="card c6"><h2>xG race</h2><svg id="xg" viewBox="0 0 400 150" role="img" aria-label="Expected goals"></svg><div class="legend"><span>● goal</span></div></section>
+  <section class="card c6"><h2>Momentum <span>↑ home · ↓ away</span></h2><svg id="mom" viewBox="0 0 400 150" role="img" aria-label="Momentum"></svg></section>
+
+  <section class="card c6"><h2>Key moments — click to explain</h2><div id="moments"></div></section>
+  <section class="card c6"><h2>Narration <span id="nmode" title="Which engine wrote this text"></span></h2><label class="sub"><input type="checkbox" id="crewOn" checked> Multi-agent Match Desk</label>
+    <label class="sub" style="margin-left:10px" title="Makes the storyteller invent a fact so you can watch the verifier catch it"><input type="checkbox" id="inject"> inject a hallucination</label>
+    <div id="story" style="min-height:70px;margin-top:6px">Select a key moment, or write the full recap.</div><div id="check" style="margin-top:8px"></div><div id="trace"></div>
+    <p><button id="recap">Generate match recap</button></p></section>
+
+  <section class="card c6"><h2>Player performance <span>final</span></h2><div style="max-height:260px;overflow:auto"><table id="ptable"></table></div></section>
+  <section class="card c6"><h2>Ask the PitchSide analyst <span id="agentmode"></span></h2>
+    <div id="chat" style="max-height:200px;overflow:auto"></div>
+    <form id="ask" style="display:flex;gap:8px;margin-top:8px"><label class="sr" for="q">Question</label><input id="q" placeholder="Who was the fastest player?" style="flex:1"><button class="primary">Ask</button></form></section>
+
+  <section class="card c12"><h2>Pipeline tools</h2>
+    <button id="ov">Overlay track JSON</button> <button id="ae">Auto-event detector check</button> <button id="ds">Generate synthetic dataset (10 matches)</button>
+    <pre id="out">Machine-readable outputs appear here.</pre></section>
+</main>
+<div id="dir" hidden></div>
+<script>
+const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let STAR='',T,meta,es=null,series=[],goals=[],shotDots=[],latSum=0,latN=0,lastMin=-1,profile={mode:'analyst'},evTicks=[];
+const P=()=>{const p=new URLSearchParams({lang:$('lang').value,mode:profile.mode,metric:$('metric').value});
+  if($('team').value)p.set('team',$('team').value);if($('fav').value)p.set('players',$('fav').value);if($('focus').value)p.set('focus',$('focus').value);return p};
+const X=t=>t/96*400;
+/* ---------- charts ---------- */
+function poly(svg,pts,color,ymin,ymax){svg.insertAdjacentHTML('beforeend',`<polyline fill="none" stroke="${color}" stroke-width="2" points="${pts.map(([x,y])=>`${X(x)},${150-(y-ymin)/(ymax-ymin)*150}`).join(' ')}"/>`)}
+function grid(svg){[0,.25,.5,.75,1].forEach(f=>svg.insertAdjacentHTML('beforeend',`<line x1="0" x2="400" y1="${150*f}" y2="${150*f}" stroke="var(--line)"/>`));svg.insertAdjacentHTML('beforeend',`<line x1="${X(45)}" x2="${X(45)}" y1="0" y2="150" stroke="var(--line)" stroke-dasharray="3"/><text x="${X(45)+3}" y="12" font-size="10" fill="var(--mut)">HT</text>`)}
+const clr=id=>{const e=$(id);e.innerHTML='';return e};
+function charts(){
+  let w=clr('wp');grid(w);poly(w,series.map(s=>[s.t,s.wp.home]),'var(--home)',0,1);poly(w,series.map(s=>[s.t,s.wp.draw]),'var(--mut)',0,1);poly(w,series.map(s=>[s.t,s.wp.away]),'var(--away)',0,1);
+  const mx=Math.max(1,...series.map(s=>Math.max(s.xg.home,s.xg.away)))*1.15;let x=clr('xg');grid(x);
+  poly(x,series.map(s=>[s.t,s.xg.home]),'var(--home)',0,mx);poly(x,series.map(s=>[s.t,s.xg.away]),'var(--away)',0,mx);
+  goals.forEach(g=>x.insertAdjacentHTML('beforeend',`<circle cx="${X(g.t)}" cy="${150-g.v/mx*150}" r="5" fill="${g.team=='home'?'var(--home)':'var(--away)'}" stroke="var(--bg)" stroke-width="2"><title>${esc(g.p)} ${esc(g.c)}</title></circle>`));
+  let m=clr('mom');grid(m);poly(m,series.map(s=>[s.t,s.momentum]),'var(--home)',-4,4)}
+/* ---------- pitch / overlay stage ---------- */
+const PX=v=>v*10.5,PY=v=>v*6.8;
+function drawPitch(){const p=clr('pitch');p.insertAdjacentHTML('beforeend',`<g stroke="#fff" stroke-opacity=".55" stroke-width="3" fill="none"><rect x="6" y="6" width="1038" height="668"/><line x1="525" x2="525" y1="6" y2="674"/><circle cx="525" cy="340" r="92"/>
+ <rect x="6" y="138" width="165" height="404"/><rect x="879" y="138" width="165" height="404"/><rect x="6" y="248" width="55" height="184"/><rect x="989" y="248" width="55" height="184"/></g><g id="shots"></g><g id="ov"></g>`)}
+function drawShots(){const g=$('shots');if(!g)return;g.innerHTML=shotDots.map(s=>`<circle cx="${PX(s.ax)}" cy="${PY(s.ay)}" r="${6+s.xg*34}" fill="${s.team=='home'?'#4cc9f0':'#f72585'}" fill-opacity="${s.goal?1:.45}" stroke="${s.goal?'#fff':'none'}" stroke-width="3"><title>${esc(s.player)} xG ${s.xg}</title></circle>`).join('')}
+let live=[];                                     // active transient overlays
+function addOverlay(o){const p=o.payload;if(o.type==='lower_third'){showLT(p.text,p.team,o.duration_ms);return}
+  if(o.type==='shot_card'){shotDots.push({ax:p.ax,ay:p.ay,xg:p.xg||.05,team:p.team,player:p.player,goal:p.outcome==='goal'});drawShots();
+     showCard(`<b>${esc(p.player)}</b> · xG ${p.xg}${p.shot_speed_kmh?` · ${Math.round(p.shot_speed_kmh)} km/h`:''}${p.distance_m?` · ${Math.round(p.distance_m)} m`:''}`,3500);return}
+  if(o.type==='pass_card'){const id='o'+Math.random().toString(36).slice(2);
+     live.push({id,until:Date.now()+1500,html:`<line x1="${PX(p.ax)}" y1="${PY(p.ay)}" x2="${PX(p.ato_x)}" y2="${PY(p.ato_y)}" stroke="${p.success?'#fff':'#ff6b6b'}" stroke-width="4" stroke-dasharray="${p.success?'':'10 8'}"/>`});
+     showCard(`<b>${esc(p.player)}</b> → ${esc(p.to_player||'—')} ${p.success?'✓':'✗'}<br>${p.distance_m} m · difficulty ${p.difficulty_10}/10 · ${Math.round(p.ball_speed_kmh)} km/h${p.player_pass_acc!=null?` · ${p.player_pass_acc}% acc.`:''}`,3000);renderOv();return}
+  if(o.type==='player_tag'){live=live.filter(t=>t.player!==p.player);const col=p.team=='home'?'#4cc9f0':'#f72585';
+     const extra=(p.speed_kmh?` · ${p.speed_kmh} km/h`:'')+(p.distance_km?` · ${p.distance_km} km`:'');
+     if(p.ax==null)return;
+     live.push({id:'t'+p.player,player:p.player,until:Date.now()+(profile.mode==='fan'?2500:1800),html:`<circle cx="${PX(p.ax)}" cy="${PY(p.ay)}" r="12" fill="${col}" stroke="${p.fav?'#ffb703':'#fff'}" stroke-width="3"/>
+       <g transform="translate(${PX(p.ax)+16},${PY(p.ay)-4})"><rect x="0" y="-18" width="${Math.max(90,(p.player.length+extra.length)*10.6+24)}" height="26" rx="6" fill="rgba(10,14,20,.88)"/><text x="8" y="0" fill="#fff" font-size="17" font-weight="600">${p.fav?'⭐ ':''}${esc(p.player)}<tspan fill="#ffb703">${esc(extra)}</tspan></text></g>`});
+     if(live.length>7)live.shift();renderOv()}}
+function renderOv(){const g=$('ov');if(g)g.innerHTML=live.map(t=>t.html).join('')}
+setInterval(()=>{const n=Date.now(),b=live.length;live=live.filter(t=>t.until>n);if(live.length!==b)renderOv()},300);
+let cardT,ltT;
+function showCard(html,ms){$('pc').innerHTML=`<div class="pcard">${html}</div>`;clearTimeout(cardT);cardT=setTimeout(()=>$('pc').innerHTML='',ms)}
+function showLT(text,team,ms){$('lt').innerHTML=`<div class="${team||''}">${esc(text)}</div>`;clearTimeout(ltT);ltT=setTimeout(()=>$('lt').innerHTML='',Math.max(2500,ms))}
+/* ---------- live frames ---------- */
+const ICON={goal:'⚽',shot_saved:'🧤',shot_blocked:'🧱',shot_off_target:'↗',tackle:'🛡',yellow_card:'🟨',red_card:'🟥',corner:'⛳',sprint:'⚡'};
+function frame(f){const e=f.event,s=f.state;
+  const mi=Math.floor(s.elapsed/60);if(mi!==lastMin||e.type==='goal'){lastMin=mi;series.push({t:s.elapsed/60,xg:s.xg,wp:s.wp,momentum:s.momentum})}
+  if(e.type==='goal')goals.push({t:s.elapsed/60,v:s.xg[e.team],team:e.team,p:e.player,c:e.clock});
+  latSum+=f.latency_ms;latN++;
+  $('bs').textContent=`${s.score.home}–${s.score.away}`;$('bc').textContent=s.clock+' · xG '+s.xg.home+'–'+s.xg.away;
+  const w=s.wp;$('wpbar').innerHTML=`<div style="width:${w.home*100}%;background:var(--home)"></div><div style="width:${w.draw*100}%;background:var(--mut)"></div><div style="width:${w.away*100}%;background:var(--away)"></div>`;
+  $('wptxt').textContent=`Win probability ${(w.home*100).toFixed(0)}% · draw ${(w.draw*100).toFixed(0)}% · ${(w.away*100).toFixed(0)}% — shots ${s.shots.home}–${s.shots.away}, possession ${s.poss}%`;
+  f.overlays.forEach(addOverlay);
+  f.feed.forEach(it=>{const d=document.createElement('div');d.className=`it p${it.priority} ${it.fav?'fav':''}`;d.dataset.eid=(it.id||'').split('-')[0];
+    d.innerHTML=`${it.kind==='insight'?'🔎':it.kind==='milestone'?'🏅':'📣'} ${esc(it.text)}${it.evidence?`<br><small>${Object.entries(it.evidence).map(([k,v])=>k+': '+v).join(' · ')}</small>`:''}`;
+    const fd=$('feed');if(fd.querySelector('.sub'))fd.innerHTML='';fd.prepend(d);while(fd.children.length>60)fd.lastChild.remove()});
+  if(ICON[e.type]&&e.player){evTicks.unshift(`${ICON[e.type]} ${e.clock} ${esc(e.player)}`);evTicks=evTicks.slice(0,6);$('ticks').innerHTML=evTicks.map(t=>`<span>${t}</span>`).join(' · ')}
+  ctrl(s);if(f.player_card)pcardShow(f.player_card);if(f.ticker)tick(f.ticker);
+  $('health').textContent=`⏱ ${(latSum/latN).toFixed(3)} ms/event · ${latN} events`;
+  if(latN%8===0||e.type==='goal')charts()}
+function ctrl(s){const c=s.control,H=T.home.name,A=T.away.name;
+  $('phase').textContent=({home_control:H+' control',away_control:A+' control',chaos:'chaos',balanced:'balanced'})[s.phase]||s.phase;
+  $('ctrl').innerHTML=['home','away'].map(k=>`<div><b class="${k}">${esc(T[k].name)}</b> — possession ${c[k].poss}% · pass acc. ${c[k].pass_acc}% · PPDA ${c[k].ppda}</div><div class="bar"><div style="width:${c[k].poss}%;background:var(--${k})"></div></div>`).join('')+'<div class="sub">Last 10 minutes. Lower PPDA = harder press.</div>'}
+function pcardShow(c){$('pname').textContent=c.name;$('pcardbox').innerHTML=`<b class="${c.team}">${esc(c.name)}</b> (${c.role})<br>Passes ${c.passes} (${c.pass_acc??'–'}% acc, avg ${c.avg_pass_m??'–'} m, difficulty ${c.avg_difficulty??'–'}/10)<br>Shots ${c.shots} · xG ${c.xg} · goals ${c.goals} · tackles won ${c.tackles_won}<br>Distance ${c.distance_km} km · top speed ${c.top_speed} km/h · sprints ${c.sprints}`}
+function tick(t){$('ticker').innerHTML=t.leaders?`<b>${esc(t.metric)}</b>: `+(t.leaders.length?'':'<span class="sub">no data yet</span>')+t.leaders.map(l=>`<span class="${l.team}">${esc(l.player)} ${l.value}${l.unit?' '+l.unit:''}</span>`).join(' · '):`<b>${esc(t.metric.replace('_',' '))}</b>: <span class="home">${t.home}${t.unit}</span> – <span class="away">${t.away}${t.unit}</span>`}
+/* ---------- connection ---------- */
+function connect(){if(es)es.close();es=new EventSource('/api/live?'+P());
+  es.addEventListener('hello',ev=>{const d=JSON.parse(ev.data);T=d.teams;meta=d.meta;$('bh').textContent=T.home.short;$('ba').textContent=T.away.short;fillRoster();});
+  es.addEventListener('frame',ev=>frame(JSON.parse(ev.data)));
+  es.addEventListener('narration',ev=>{const n=JSON.parse(ev.data);const d=document.createElement('div');d.className='it p5';d.innerHTML=`✨ ${esc(n.text)} <small>${esc(n.mode)} · ${n.check.ok?'grounded ✓':'flagged'}</small>`;$('feed').prepend(d)});
+  es.addEventListener('end',()=>{es.close();charts();$('feed').prepend(Object.assign(document.createElement('div'),{className:'sub',textContent:'— full time —'}))});
+  $('mode-lbl').textContent=profile.mode+' · '+$('lang').selectedOptions[0].text}
+function fillRoster(){if(!T)return;const keep=[$('team').value,$('fav').value,$('focus').value];
+  $('team').innerHTML='<option value="">—</option>'+['home','away'].map(k=>`<option value="${k}">${esc(T[k].name)}</option>`).join('');
+  const opts=['home','away'].flatMap(k=>T[k].players.map(p=>`<option value="${esc(p)}">${esc(p)} (${T[k].short})</option>`)).join('');
+  $('fav').innerHTML='<option value="">—</option>'+opts;$('focus').innerHTML='<option value="">Whole match</option>'+opts;
+  $('team').value=keep[0];$('fav').value=keep[1];$('focus').value=keep[2]}
+async function start(){series=[];goals=[];shotDots=[];latSum=latN=0;lastMin=-1;evTicks=[];live=[];$('feed').innerHTML='';$('ticks').innerHTML='';drawPitch();
+  const res=await fetch(`/api/feed/start?speed=${$('speed').value||60}`,{method:'POST'});
+  if(!res.ok){$('feed').innerHTML='<div class="it bad">Could not start the live feed ('+res.status+').</div>';return}
+  const r=await res.json();T=r.teams;fillRoster();connect()}
+/* ---------- static views ---------- */
+async function init(){
+  const st=await (await fetch('/api/status')).json();
+  $('badges').innerHTML=[['Azure OpenAI',st.llm],['Foundry agent',st.agent],['Event Hubs → Fabric',st.eventhub],['Fabric OneLake',st.fabric]].map(([n,on])=>`<span class="badge ${on?'on':''}">${on?'●':'○'} ${n}${on?'':' (offline fallback)'}</span>`).join('');
+  $('lang').innerHTML=Object.entries(st.languages).map(([k,v])=>`<option value="${k}">${v}</option>`).join('');
+  $('metric').innerHTML=st.metrics.map(m=>`<option value="${m==='none'?'none':m}">${m==='none'?'(none)':m.replace('_',' ')}</option>`).join('');
+  const M=await (await fetch('/api/match')).json();T=M.teams;STAR=[...M.players].sort((a,b)=>b.goals-a.goals||b.xg-a.xg)[0].name;meta=M.meta;fillRoster();drawPitch();
+  $('bh').textContent=T.home.short;$('ba').textContent=T.away.short;
+  M.timeline.forEach(s=>series.push(s));M.shots.forEach(s=>{if(s.x!=null)shotDots.push({ax:s.team=='home'?s.x:100-s.x,ay:s.team=='home'?s.y:100-s.y,xg:s.xg,team:s.team,player:s.player,goal:s.type==='goal'})});
+  M.timeline.filter(s=>s.score).forEach((s,i,a)=>{if(i&&(s.score.home+s.score.away)>(a[i-1].score.home+a[i-1].score.away)){const e=s.xg;goals.push({t:s.t,v:e.home>=e.away?e.home:e.away,team:s.score.home>a[i-1].score.home?'home':'away',p:'',c:s.clock})}});
+  drawShots();charts();const f=M.final;$('bs').textContent=`${f.score.home}–${f.score.away}`;$('bc').textContent=`FT · xG ${f.xg.home}–${f.xg.away}`;ctrl(f);
+  $('wpbar').innerHTML='';$('wptxt').textContent='Press “Start live match” to watch the real-time pipeline.';
+  $('moments').innerHTML=M.moments.map(m=>`<button class="moment" data-id="${m.event_id}"><b>${esc(m.clock)} ${m.type.replace(/_/g,' ')}</b> — <span class="${m.team}">${esc(m.player)}</span><div>${m.factors.map(f=>`<span class="chip" title="${esc(f.note)}">${f.factor.replace(/_/g,' ')}: ${esc(f.value)}</span>`).join('')}</div></button>`).join('');
+  document.querySelectorAll('.moment').forEach(b=>b.onclick=()=>explain(b.dataset.id,b));
+  $('ptable').innerHTML='<tr><th>Player</th><th>Pass%</th><th>xG</th><th>Tkl</th><th>km</th><th>km/h</th></tr>'+M.players.map(p=>`<tr><td class="${p.team}">${esc(p.name)}</td><td>${p.pass_acc??'–'}</td><td>${p.xg}</td><td>${p.tackles_won}</td><td>${p.distance_km}</td><td>${p.top_speed||'–'}</td></tr>`).join('');
+  const qs=new URLSearchParams(location.search);if(qs.get('mode'))document.querySelector(`#mode button[data-v=${qs.get('mode')}]`)?.click();
+  if(qs.get('lang'))$('lang').value=qs.get('lang');
+  if(qs.get('autostart')){$('speed').value=qs.get('autostart');start()}else if(st.live.running)connect()}
+const q2=()=>`persona=${profile.mode==='fan'?'fan':'studio'}&lang=${$('lang').value}`;
+const ICO={analyst:'🔍',storyteller:'✍️',verifier:'🛡️'};
+async function crewCall(task){const r=await fetch('/api/crew',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({lang:$('lang').value,persona:profile.mode==='fan'?'fan':'studio',inject_error:$('inject').checked},task))});if(!r.ok)throw new Error(r.status);return r.json()}
+function showCrew(r){show({text:r.text,mode:r.mode,check:r.check});
+  $('check').innerHTML+=` · ${r.approved?'<span class="ok">approved by verifier</span>':'<span class="bad">not approved</span>'}${r.revisions?` · <b class="bad">${r.revisions} revision${r.revisions>1?'s':''}</b>`:''}`;
+  $('trace').innerHTML=r.trace.map(t=>{const rej=/REVISE/.test(t.detail);return `<div><span class="ag ${t.agent} ${rej?'bad':''}">${ICO[t.agent]||''} ${t.agent}</span><b>${esc(t.action)}</b> ${esc(t.detail)}</div>`}).join('')}
+async function explain(id,el){lastNarr={m:id};document.querySelectorAll('.moment').forEach(n=>n.classList.remove('sel'));el&&el.classList.add('sel');$('story').textContent='Thinking…';
+  $('trace').innerHTML='';try{if($('crewOn').checked)showCrew(await crewCall({task:'moment',event_id:+id}));else show(await (await fetch(`/api/moment/${id}?${q2()}`)).json())}catch(e){$('story').textContent='Could not load narration.'}}
+let lastNarr=null;
+function show(r){$('story').textContent=r.text;$('story').dir=$('lang').value==='ar'?'rtl':'ltr';$('nmode').textContent=r.mode.startsWith('template')?'offline templates':r.mode;$('check').innerHTML=`<span class="${r.check.ok?'ok':'bad'}">${r.check.ok?'✓ grounded':'✗ flagged'}</span> · ${r.check.citations} citations verified `+r.check.issues.map(i=>`<div class="bad">${esc(i)}</div>`).join('')}
+$('recap').onclick=async()=>{lastNarr={r:1};$('story').textContent='Writing recap…';$('trace').innerHTML='';try{if($('crewOn').checked)showCrew(await crewCall({task:'recap'}));else show(await (await fetch(`/api/recap?${q2()}`)).json())}catch(e){$('story').textContent='Could not write the recap.'}};
+$('export').onclick=async()=>{const r=await (await fetch('/api/export',{method:'POST'})).json();$('export').textContent=`✓ ${r.target}: ${r.files.length} files`};
+$('start').onclick=start;
+document.querySelectorAll('#mode button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#mode button').forEach(x=>x.classList.toggle('on',x===b));profile.mode=b.dataset.v;if(es)connect();renarrate()});
+const renarrate=()=>{if(!lastNarr)return;lastNarr.m?explain(lastNarr.m,document.querySelector(`.moment[data-id="${lastNarr.m}"]`)):$('recap').onclick()};
+['lang','team','fav','focus','metric'].forEach(id=>$(id).onchange=()=>{if(es)connect();if(id==='lang')renarrate()});
+const show$=async(u,opt)=>{$('out').textContent='…';const j=await (await fetch(u,opt)).json();if(j.overlays){j.overlays=j.overlays.slice(0,6).concat([{note:`… ${j.count} overlays total`}])}$('out').textContent=JSON.stringify(j,null,1)};
+$('ov').onclick=()=>show$(`/api/overlays?${P()}`);$('ae').onclick=()=>show$('/api/autoevent');$('ds').onclick=()=>show$('/api/dataset?n=10&seed=100',{method:'POST'});
+let prev=null;
+$('ask').onsubmit=async e=>{e.preventDefault();const t=$('q').value.trim();if(!t)return;$('q').value='';
+  $('chat').insertAdjacentHTML('beforeend',`<div class="it"><b>You</b> ${esc(t)}</div>`);
+  try{let r;if($('crewOn').checked){const c=await crewCall({task:'ask',question:t,inject_error:false});r={answer:c.text,mode:c.mode,tool_calls:c.trace.filter(x=>x.action==='tool').map(x=>({tool:x.agent+': '+x.detail.split('(')[0]}))}}else{r=await (await fetch('/api/agent',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:t,previous_response_id:prev})})).json();prev=r.response_id}
+  $('agentmode').textContent=r.mode;const tc=(r.tool_calls||[]).map(c=>`<span class="chip">🔧 ${c.tool}</span>`).join('');
+  $('chat').insertAdjacentHTML('beforeend',`<div class="it"><b>Analyst</b> ${esc(r.answer)}<div>${tc}</div></div>`)}catch(x){$('chat').insertAdjacentHTML('beforeend','<div class="it bad">Request failed.</div>')}$('chat').scrollTop=1e9};
+/* ---------- demo director (?demo=1): one-click, repeatable walkthrough for recording ---------- */
+const sel=(id,v)=>{$(id).value=v;$(id).dispatchEvent(new Event('change'))};
+const hl=id=>{document.querySelectorAll('.hl').forEach(n=>n.classList.remove('hl'));const e=$(id)?.closest('.card')||$(id);if(e){e.classList.add('hl');e.scrollIntoView({behavior:'smooth',block:'center'})}};
+const STEPS=[
+ ['1 · Real-time pipeline (0:00)','Hook: “Football stories don’t end at the scoreline.” Live match starts; point at name tags, speed indicators, pass & shot cards and the ms/event badge.',async()=>{sel('lang','en');document.querySelector('#mode button[data-v=analyst]').click();$('speed').value='100';await start();hl('stage')}],
+ ['2 · Explain why it matters (0:40)','Control-vs-chaos panel and the feed: every insight carries its numbers (possession, pass accuracy, PPDA).',()=>hl('ctrl')],
+ ['3 · Same match, casual fan (1:00)','Flip to Fan + Japanese: numbers drop, plain language, localised in real time.',()=>{document.querySelector('#mode button[data-v=fan]').click();sel('lang','ja');hl('feed')}],
+ ['4 · Favourite club & player (1:15)','Language → Spanish. Favourite club = home side, favourite player = the match’s top scorer: ⭐ items, their goals promoted.',()=>{sel('lang','es');sel('team','home');sel('fav',STAR);hl('feed')}],
+ ['5 · Follow one player (1:30)','Follow the top scorer: only their tags and a live performance card.',()=>{sel('focus',STAR);hl('pcardbox')}],
+ ['6 · Single-metric ticker (1:45)','Back to analyst/English, whole match, ticker = top speed.',()=>{sel('focus','');sel('fav','');sel('team','');sel('lang','en');document.querySelector('#mode button[data-v=analyst]').click();sel('metric','speed');hl('ticker')}],
+ ['7 · Multi-agent fact-check (2:00)','Inject a hallucination, click the first goal: Analyst → Storyteller → Verifier rejects the invented fact → Storyteller revises → approved.',()=>{$('crewOn').checked=true;$('inject').checked=true;const b=document.querySelector('.moment[data-id]');const g=[...document.querySelectorAll('.moment')].find(x=>/goal/.test(x.textContent))||b;g&&g.click();hl('story')}],
+ ['8 · Foundry agent (2:20)','Ask “Who was the fastest player?” — note the tool-call chips.',async()=>{$('q').value='Who was the fastest player?';hl('chat');$('ask').requestSubmit()}],
+ ['9 · Platform (2:40)','Overlay-track JSON for a graphics renderer, auto-event detector check, Fabric export. Close.',()=>{$('ae').click();hl('out')}]];
+let di=-1;
+function dirRender(){const d=$('dir');if(di<0||di>=STEPS.length){d.innerHTML=`<h3>Demo director</h3><p>${di<0?'Ready. Press → or click Start.':'That’s a wrap.'}</p><div class="row"><button id="d0">${di<0?'Start ▶':'Restart ↺'}</button></div>`;$('d0').onclick=()=>{di=-1;dirNext()};return}
+  const [t,c]=STEPS[di];d.innerHTML=`<h3>${t}</h3><p>${c}</p><div class="row"><button id="db">◀</button><small>${di+1}/${STEPS.length} · ← → · h hides</small><button id="dn" class="primary">Next ▶</button></div>`;$('db').onclick=dirBack;$('dn').onclick=dirNext}
+async function dirRun(){dirRender();if(di>=0&&di<STEPS.length)await STEPS[di][2]()}
+function dirNext(){di=Math.min(STEPS.length,di+1);dirRun()}
+function dirBack(){di=Math.max(0,di-1);dirRun()}
+if(new URLSearchParams(location.search).get('demo')){$('dir').hidden=false;dirRender();addEventListener('keydown',e=>{if(/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName))return;if(e.key==='h')$('dir').hidden=!$('dir').hidden;if(e.key==='ArrowRight')dirNext();if(e.key==='ArrowLeft')dirBack()})}
+const th=new URLSearchParams(location.search).get('theme');if(th)document.documentElement.dataset.theme=th;
+init();
+</script>
+</body>
+</html>
