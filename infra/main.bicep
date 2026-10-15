@@ -257,3 +257,5 @@ output acrLoginServer string = acr.properties.loginServer
 output foundryProjectEndpoint string = 'https://${foundryName}.services.ai.azure.com/api/projects/${projectName}'
 output eventHubNamespace string = ehns.name
 output fabricCapacity string = empty(fabricAdmins) ? '' : fabricCapacity.name
+output acrName string = acr.name
+output appName string = app.name

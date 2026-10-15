@@ -1,4 +1,9 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
 name: pitchside
+infra:
+  provider: bicep
+  path: infra
+  module: main
 services:
   web:
     project: .
@@ -6,3 +11,4 @@ services:
     language: python
     docker:
       path: ./Dockerfile
+      remoteBuild: true      # build in Azure Container Registry - no local Docker needed
